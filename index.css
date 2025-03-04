@@ -51,7 +51,7 @@ p {
     bottom: -3px;
     left: 0;
     width: 0;
-    height: 5px;
+    height: 3px;
     background: white;
     transition: width 0.3s ease;
 }
@@ -96,16 +96,49 @@ p {
     margin-top: 80px;
 }
 
+
+.content-preview {
+    line-height: 1.8;
+    color: #444;
+    margin: 1rem 0;
+    max-height: 150px;
+    overflow: hidden;
+    position: relative;
+}
+
+.content-preview::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2em;
+    background: linear-gradient(180deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.9) 100%);
+}
+
+/* 在CSS中添加 */
+.note-card.loading .content-preview {
+    background: #f5f5f5;
+    min-height: 120px;
+    border-radius: 4px;
+}
+
 .note-card {
+    aspect-ratio: 1/1.2;
+    /* 保持卡片统一比例 */
     background: rgba(255, 255, 255, 0.9);
     border-radius: 9px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    transition: transform 0.3s ease;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .note-card:hover {
     transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
 .cover {
@@ -115,7 +148,7 @@ p {
 }
 
 .note-info {
-    padding: s5rem;
+    padding: 1.5rem;
 }
 
 .note-info h3 {
@@ -127,6 +160,18 @@ p {
     color: #666;
     line-height: 1.6;
 }
+
+/* 新增无封面样式 */
+.note-info.no-cover {
+    padding-top: 2rem;
+    /* 增加顶部间距 */
+    min-height: 280px;
+    /* 保持卡片高度一致 */
+}
+
+
+
+
 
 .interactions {
     display: flex;
@@ -142,19 +187,33 @@ p {
 }
 
 
-.floating-button button {
+.floating-button a {
     background: #F09A1A;
+    display: inline-block;
+    /* 关键修复属性 */
+    z-index: 1000;
+    /* 确保按钮位于最顶层 */
     color: white;
     padding: 1rem 2rem;
     border: none;
+    text-decoration: none;
     border-radius: 30px;
     font-size: 1.1rem;
     cursor: pointer;
     box-shadow: 0 4px 15px rgba(240, 154, 26, 0.3);
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    /* 明确过渡属性 */
+
 }
 
-.floating-button button:hover {
+/* 添加点击反馈效果 */
+.floating-button a:active {
+    transform: scale(0.95) translateZ(0);
+}
+
+
+
+.floating-button a:hover {
     transform: scale(1.05);
     box-shadow: 0 6px 20px rgba(240, 154, 26, 0.4);
 }
@@ -163,4 +222,23 @@ p {
     .content-grid {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
+}
+
+/* 添加加载状态样式 */
+.loading-indicator {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+/* 错误提示样式 */
+.error-message {
+    color: #ff4444;
+    padding: 2rem;
+    text-align: center;
+}
+
+/* 时间戳样式 */
+.interactions span:first-child {
+    color: #F09A1A;
 }

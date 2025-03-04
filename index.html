@@ -25,8 +25,7 @@
     <main class="content-grid">
         <!-- 单篇笔记示例 -->
         <article class="note-card">
-            <img src="https://n.sinaimg.cn/sinacn20107/685/w599h886/20190427/c91a-hvvuiyp2168363.jpg" alt="笔记封面"
-                class="cover">
+
             <div class="note-info">
                 <h3>笔记标题</h3>
                 <p>笔记内容摘要...</p>
@@ -37,48 +36,116 @@
             </div>
         </article>
         <!-- 更多笔记卡片... -->
-        <article class="note-card">
-            <img src="https://n.sinaimg.cn/sinacn20107/685/w599h886/20190427/c91a-hvvuiyp2168363.jpg" alt="笔记封面"
-                class="cover">
-            <div class="note-info">
-                <h3>笔记标题</h3>
-                <p>笔记内容摘要...</p>
-                <div class="interactions">
-                    <span>❤️ 点赞数</span>
-                    <span>💬 评论数</span>
-                </div>
-            </div>
-        </article>
-        <article class="note-card">
-            <img src="https://n.sinaimg.cn/sinacn20107/685/w599h886/20190427/c91a-hvvuiyp2168363.jpg" alt="笔记封面"
-                class="cover">
-            <div class="note-info">
-                <h3>笔记标题</h3>
-                <p>笔记内容摘要...</p>
-                <div class="interactions">
-                    <span>❤️ 点赞数</span>
-                    <span>💬 评论数</span>
-                </div>
-            </div>
-        </article>
-        <article class="note-card">
-            <img src="https://n.sinaimg.cn/sinacn20107/685/w599h886/20190427/c91a-hvvuiyp2168363.jpg" alt="笔记封面"
-                class="cover">
-            <div class="note-info">
-                <h3>笔记标题</h3>
-                <p>笔记内容摘要...</p>
-                <div class="interactions">
-                    <span>❤️ 点赞数</span>
-                    <span>💬 评论数</span>
-                </div>
-            </div>
-        </article>
+
     </main>
 
     <!-- 底部发布按钮 -->
     <div class="floating-button">
-        <button>+ 发布笔记</button>
+        <a href="https://github.com/lastsuperboy/lastsuperboy.github.io/issues/new?template=note_submission.md"
+            target="_blank">
+            + 发布笔记
+        </a>
     </div>
+
+    <!-- 在</body>前添加 -->
+    <script>
+        // GitHub仓库信息配置
+        const REPO_OWNER = 'lastsuperboy';
+        const REPO_NAME = 'lastsuperboy.github.io';
+
+        // 获取issues的API URL
+        const API_URL = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues`;
+
+        // 笔记容器
+        const contentGrid = document.querySelector('.content-grid');
+
+        // 获取并渲染issues
+        async function loadNotes() {
+            try {
+                const response = await fetch(API_URL);
+                const issues = await response.json();
+
+                // 清空示例内容
+                contentGrid.innerHTML = '';
+
+                issues.forEach(issue => {
+                    contentGrid.appendChild(createNoteCard(issue));
+                });
+            } catch (error) {
+                console.error('Error loading notes:', error);
+                contentGrid.innerHTML = '<p>😢 笔记加载失败，请稍后刷新重试</p>';
+            }
+        }
+
+        // 创建笔记卡片
+        function createNoteCard(issue) {
+            const card = document.createElement('article');
+            card.className = 'note-card';
+
+            card.innerHTML = `
+        <div class="note-info">
+            <h3>${escapeHtml(issue.title)}</h3>
+            <div class="content-preview">
+                ${truncateText(escapeHtml(issue.body), 200)}
+            </div>
+            <div class="interactions">
+                <span>📅 ${formatDate(issue.created_at)}</span>
+                <span>💬 ${issue.comments}</span>
+                <span>👁️ ${issue.reactions?.eyes || 0}</span>
+            </div>
+        </div>
+    `;
+            card.addEventListener('click', () => {
+                window.open(issue.html_url, '_blank'); // 在新标签页打开
+            });
+            card.addEventListener('mousedown', () => {
+                card.style.transform = 'scale(0.98)';
+            });
+
+            card.addEventListener('mouseup', () => {
+                card.style.transform = 'scale(1)';
+            });
+
+            // 添加触摸事件支持
+            let tapTimer;
+            card.addEventListener('touchstart', () => {
+                tapTimer = setTimeout(() => {
+                    card.style.transform = 'scale(0.98)';
+                }, 50);
+            });
+
+            card.addEventListener('touchend', () => {
+                clearTimeout(tapTimer);
+                card.style.transform = 'scale(1)';
+            });
+
+            return card;
+        }
+
+
+
+        // 辅助函数
+        function getFirstImage(text) {
+            const imgMatch = text.match(/!\[.*?\]\((.*?)\)/);
+            return imgMatch ? imgMatch[1] : 'default-cover.jpg';
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function truncateText(text, maxLength) {
+            return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('zh-CN');
+        }
+
+        // 初始化加载
+        loadNotes();
+    </script>
+
 </body>
 
 </html>
